@@ -10,9 +10,10 @@ int main()
     GumboSession        gumbo = new(__GumboSession);
     Buffer              buffer = NULL;
 
-    buffer = curl->get(curl, "http://t-chafiol.fr/en/about");
+    buffer = curl->get(curl, "http://www.gcgd.lu/golf-club-grand-ducal/index.php?lang=en");
     // printf("%s\n", ((String)(buffer))->content);
     gumbo->parse(gumbo, buffer);
+    printf("Score total: %d\n", ((Analyser)gumbo)->count);
 
     delete(buffer);
     delete(curl);

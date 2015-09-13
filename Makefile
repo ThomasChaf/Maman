@@ -6,7 +6,8 @@ LIB_DIR=	libraries
 
 SRC=		$(SRC_DIR)/main.c \
 			$(SRC_DIR)/curl_session.c \
-			$(SRC_DIR)/gumbo_session.c
+			$(SRC_DIR)/gumbo_session.c \
+			$(SRC_DIR)/analyser.c
 
 LDFLAGS=	-L./$(LIB_DIR)/modulary -lmod
 

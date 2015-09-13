@@ -17,26 +17,79 @@
 //                                                                            *
 // ****************************************************************************
 
-static const char *find_title(const GumboNode* root, int i)
-{
-    if (root->type != GUMBO_NODE_ELEMENT)
-    {
-        // printf("==============%d=%d===========\n", root->type, GUMBO_NODE_ELEMENT);
-        if (root->type == GUMBO_NODE_TEXT && root->v.element.tag <= GUMBO_TAG_LAST)
-            printf("%s\n", root->v.text.text);
-        return (NULL);
-    }
+t_element_rank      g_target_element[]= {
+    {GUMBO_TAG_TITLE, 50},
+    {GUMBO_TAG_A, 20},
+    {GUMBO_TAG_H1, 50},
+    {GUMBO_TAG_H2, 40},
+    {GUMBO_TAG_H3, 30},
+    {GUMBO_TAG_H4, 20},
+    {GUMBO_TAG_H5, 20},
+    {GUMBO_TAG_P, 40},
+    {-1, 0}
+};
 
-    const GumboVector* root_children = &root->v.element.children;
-    GumboNode* head = NULL;
-    for (int i = 0; i < root_children->length; ++i)
+int                     __get_text(GumboSession this, const GumboNode *element, Buffer buffer)
+{
+    const GumboVector   *childrens;
+    int                 i;
+
+    if (element->type == GUMBO_NODE_TEXT)
     {
-        GumboNode* child = root_children->data[i];
-        if (child->v.element.tag <= GUMBO_TAG_LAST)
-            printf("%d %s\n", i, gumbo_normalized_tagname(child->v.element.tag));
-        find_title(child, i + 1);
+        buffer->concat(buffer, element->v.text.text, m_strlen(element->v.text.text, ""));
     }
-    return NULL;
+    else if (element->type == GUMBO_NODE_ELEMENT)
+    {
+        childrens = &element->v.element.children;
+        i = 0;
+        while (i < childrens->length)
+        {
+            this->get_text(this, childrens->data[i], buffer);
+            i += 1;
+        }
+    }
+    return (true);
+}
+
+static int              __is_target_element(GumboSession this, const GumboNode *element)
+{
+    int     j = 0;
+
+    while (g_target_element[j].tag != -1)
+    {
+        if (g_target_element[j].tag == element->v.element.tag)
+            return (g_target_element[j].score);
+        j += 1;
+    }
+    return (0);
+}
+
+static int              __analyse(GumboSession this, const GumboNode* root)
+{
+    Analyser            _this = (Analyser)this;
+    GumboNode           *child;
+    const GumboVector   *root_children = &root->v.element.children;
+    int                 i = 0;
+    Buffer              buffer = NULL;
+    int                 score;
+
+    if (root->type != GUMBO_NODE_ELEMENT)
+        return (true);
+    while (i < root_children->length)
+    {
+        child = root_children->data[i];
+        if ((score = this->is_target_element(this, child)) > 0)
+        {
+            buffer = new(__Buffer);
+            this->get_text(this, child, buffer);
+            _this->analyse_sentence(this, buffer, score);
+            delete(buffer);
+        }
+        else
+            this->analyse(this, child);
+        i += 1;
+    }
+    return (true);
 }
 
 
@@ -44,8 +97,7 @@ static int          __parse(GumboSession this, Buffer buffer)
 {
     GumboOutput     *output = gumbo_parse(((String)buffer)->content);
 
-    find_title(output->root, 0);
-
+    this->analyse(this, output->root);
     gumbo_destroy_output(&kGumboDefaultOptions, output);
     return (true);
 }
@@ -77,11 +129,15 @@ t_module __GumboSession =  { sizeof(t_gumbo_session),  gumbo_session_ctor, gumbo
 static void           __methods(GumboSession this)
 {
     this->parse = __parse;
+    this->analyse = __analyse;
+    this->is_target_element = __is_target_element;
+    this->get_text = __get_text;
 }
 
 int                   gumbo_session_ctor(GumboSession this)
 {
-
+    if (super(this, __Analyser) == false)
+        return (false);
     __methods(this);
     return (true);
 }
