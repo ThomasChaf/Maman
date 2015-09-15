@@ -13,7 +13,8 @@
 typedef enum    e_word_type {
     SIMPLE,
     NOUN,
-    VERB
+    VERB,
+    WORD_TYPE_LEN
 }               t_word_type;
 
 typedef struct  s_dictionary
@@ -29,6 +30,7 @@ typedef struct      s_analyser
     unsigned int    count;
     fct             analyse_sentence;
     fct             analyse_word;
+    fct             analysers[WORD_TYPE_LEN];
 }                   t_analyser;
 
 typedef t_analyser *    Analyser;

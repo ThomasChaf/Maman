@@ -42,22 +42,49 @@ t_dictionary        g_dictionary[]= {
     { NULL, 0, 0}
 };
 
+static int          __analyse_simple(Analyser this, char *word, char *to_analyse, unsigned int len)
+{
+    return (m_strcmp(word, to_analyse));
+}
+
+static int          __analyse_verb(Analyser this, char *word, char *to_analyse, unsigned int len)
+{
+    return (m_strcmp(word, to_analyse));
+}
+
+static int          __analyse_noun(Analyser this, char *word, char *to_analyse, unsigned int len)
+{
+    if (m_strcmp(word, to_analyse) == 0 || m_strcmp(m_strcat(word, "s"), to_analyse) == 0)
+        return (0);
+    return (-1);
+}
+
 static int          __analyse_word(Analyser this, char *word)
 {
     int             i = 0;
+    unsigned int    len = 0;
 
+    // printf("[%s|", word);
+    word = m_strlowercase(word);
+    m_epur(word, " \n\t", NULL);
+    len = m_strlen(word, "");
+    // printf("%s]\n", word);
     while (g_dictionary[i].name != NULL)
     {
-        if (m_strcmp(g_dictionary[i].name, word) == 0)
+        if (this->analysers[g_dictionary[i].type](this, g_dictionary[i].name, word, len) == 0)
+        {
+            printf("%d [%s]\n", g_dictionary[i].score, word);
             return (g_dictionary[i].score);
+        }
         i += 1;
     }
+    printf("%d [%s]\n", 0, word);
     return (0);
 }
 
 static int          __analyse_sentence(Analyser this, Buffer buffer, int score)
 {
-    Array           words = ((String)buffer)->split(buffer, " ", NULL);
+    Array           words = ((String)buffer)->split(buffer, " .-:", NULL);
     Iter            it = NULL;
 
     if (words == NULL || words->len == 0)
@@ -70,7 +97,6 @@ static int          __analyse_sentence(Analyser this, Buffer buffer, int score)
     while (it)
     {
         this->count += ((score / words->len) * this->analyse_word(this, it->content));
-        printf("%d %s\n", this->count, it->content);
         it = next(it);
     }
     delete(it);
@@ -106,6 +132,9 @@ static void           __methods(Analyser this)
 {
     this->analyse_sentence = __analyse_sentence;
     this->analyse_word = __analyse_word;
+    this->analysers[SIMPLE] = __analyse_simple;
+    this->analysers[VERB] = __analyse_verb;
+    this->analysers[NOUN] = __analyse_noun;
 }
 
 int                   analyser_ctor(Analyser this)
