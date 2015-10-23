@@ -1,1 +1,0 @@
-coffee -p crawler.coffee > crawler.js ; phantomjs crawler.js

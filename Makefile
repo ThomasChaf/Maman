@@ -1,17 +1,18 @@
-CC=			gcc
+CC=		gcc
 
 SRC_DIR=	sources
 INC_DIR=	includes
 LIB_DIR=	libraries
 
 SRC=		$(SRC_DIR)/main.c \
-			$(SRC_DIR)/curl_session.c \
-			$(SRC_DIR)/gumbo_session.c \
-			$(SRC_DIR)/analyser.c
+		$(SRC_DIR)/maman.c \
+		$(SRC_DIR)/analyser.c \
+		$(SRC_DIR)/curl_session.c \
+		$(SRC_DIR)/gumbo_session.c
 
-LDFLAGS=	-L./$(LIB_DIR)/modulary -lmod
+LDFLAGS=	-L./$(LIB_DIR)/modulary -lmod -L/usr/local/lib -lgumbo -lcurl
 
-CFLAGS=		-I./$(LIB_DIR)/modulary -I./$(INC_DIR)
+CFLAGS=		-I./$(LIB_DIR)/modulary -I./$(INC_DIR) -I/usr/local/include
 
 OBJ=		$(SRC:.c=.o)
 
@@ -20,7 +21,7 @@ NAME=		maman
 all:		$(NAME)
 
 $(NAME):	$(OBJ)
-			gcc `pkg-config --cflags --libs gumbo` `curl-config --libs` -o $(NAME) $(OBJ) $(LDFLAGS)
+		gcc -o $(NAME) $(OBJ) $(LDFLAGS)
 
 clean:
 	rm -f $(OBJ)

@@ -1,3 +1,4 @@
 **/*.o
 maman
 libraries/modulary
+phantom-app/sites/*

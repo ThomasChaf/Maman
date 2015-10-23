@@ -1,21 +1,60 @@
 #include <unistd.h>
+#include <stdio.h>
 
 #include "modulary.h"
-#include "curl_session.h"
-#include "gumbo_session.h"
+#include "maman.h"
 
-int main()
+int                 maman_from_list(char *list)
 {
-    CurlSession         curl = new(__CurlSession);
-    GumboSession        gumbo = new(__GumboSession);
-    Buffer              buffer = NULL;
+    char            filename[128];
+    int             i = 0;
+    Maman           maman = new(__Maman, list);
+    Iter            it;
 
-    buffer = curl->get(curl, "http://www.gcgd.lu/");
-    // printf("%s\n", ((String)(buffer))->content);
-    gumbo->parse(gumbo, buffer);
-    printf("Score total: %d\n", ((Analyser)gumbo)->count);
+    if (maman == NULL)
+        return (false);
+    it = iter(maman);
+    if (it == NULL)
+        return (false);
+    while (it != NULL)
+    {
+        sprintf(filename, "phantom-app/sites/fichier%d", i);
+        maman->analyse(maman, MAMAN_WEB_FILE, filename, it->content);
+        i += 1;
+        it = next(it);
+    }
+    maman->publish_results(maman);
+    delete(maman);
+    return (true);
+}
 
-    delete(buffer);
-    delete(curl);
+int                 simple_maman(char *filename, char *descriptor)
+{
+    Maman           maman = new(__Maman, NULL);
+
+    if (maman == NULL)
+        return (false);
+    if (maman->analyse(maman, MAMAN_WEB_FILE, filename, descriptor) == false)
+    {
+        delete(maman);
+        return (false);
+    }
+    maman->publish_results(maman);
+    delete(maman);
+    return (true);
+}
+
+int                 main(int argc, char **argv)
+{
+
+    if (argc == 2)
+    {
+        if (maman_from_list(argv[1]) == false)
+            return (EXIT_FAILURE);
+    }
+    else if (argc == 3) {
+        if (simple_maman(argv[1], argv[2]) == false)
+            return (EXIT_FAILURE);
+    }
     return (EXIT_SUCCESS);
 }

@@ -17,17 +17,23 @@ typedef enum    e_word_type {
     WORD_TYPE_LEN
 }               t_word_type;
 
-typedef struct  s_dictionary
+typedef struct          s_dictionary_word
 {
-    char        *name;
-    t_word_type type;
-    int         score;
-}               t_dictionary;
+    char                *name;
+    t_word_type         type;
+    int                 score;
+}                       t_dictionary_word;
+
+typedef struct          s_dictionary
+{
+    char                *name;
+    t_dictionary_word   *words;
+}                       t_dictionary;
 
 typedef struct      s_analyser
 {
     t_module        module;
-    unsigned int    count;
+    unsigned int    *count;
     fct             analyse_sentence;
     fct             analyse_word;
     fct             analysers[WORD_TYPE_LEN];
