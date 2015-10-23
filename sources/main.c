@@ -52,7 +52,8 @@ int                 main(int argc, char **argv)
         if (maman_from_list(argv[1]) == false)
             return (EXIT_FAILURE);
     }
-    else if (argc == 3) {
+    else if (argc == 3)
+    {
         if (simple_maman(argv[1], argv[2]) == false)
             return (EXIT_FAILURE);
     }

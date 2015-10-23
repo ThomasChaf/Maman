@@ -30,6 +30,8 @@ typedef struct      s_result
 typedef struct      s_maman
 {
     t_module        parent;
+    Json            dictionaries;
+    int             dico_len; 
     FILE            *fp;
     Liste           *results;
     fct             publish_results;

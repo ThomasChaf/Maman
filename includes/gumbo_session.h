@@ -8,6 +8,8 @@
 #ifndef __GUMBO_SESSION_H__
 #define __GUMBO_SESSION_H__
 
+#include <stdarg.h>
+
 #include "modulary.h"
 #include "analyser.h"
 
@@ -28,7 +30,7 @@ typedef struct      s_gumbo_session
 
 typedef t_gumbo_session *    GumboSession;
 
-int                 gumbo_session_ctor(GumboSession);
+int                 gumbo_session_ctor(GumboSession, va_list *);
 int                 gumbo_session_dtor();
 
 extern char         *__GUMBO_SESSION;

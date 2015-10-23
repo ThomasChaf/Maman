@@ -36,7 +36,7 @@ int                     __get_text(GumboSession this, const GumboNode *element, 
 
     if (element->type == GUMBO_NODE_TEXT)
     {
-        buffer->concat(buffer, element->v.text.text, m_strlen(element->v.text.text, ""));
+        buffer->concat(buffer, element->v.text.text, m_strlen((char *)element->v.text.text, ""));
     }
     else if (element->type == GUMBO_NODE_ELEMENT)
     {
@@ -51,9 +51,9 @@ int                     __get_text(GumboSession this, const GumboNode *element, 
     return (true);
 }
 
-static int              __is_target_element(GumboSession this, const GumboNode *element)
+static int          __is_target_element(GumboSession this, const GumboNode *element)
 {
-    int     j = 0;
+    int             j = 0;
 
     while (g_target_element[j].tag != -1)
     {
@@ -93,9 +93,9 @@ static int              __analyse(GumboSession this, const GumboNode* root)
 }
 
 
-static int          __parse(GumboSession this, Buffer buffer)
+static int              __parse(GumboSession this, Buffer buffer)
 {
-    GumboOutput     *output = gumbo_parse(((String)buffer)->content);
+    GumboOutput         *output = gumbo_parse(((String)buffer)->content);
 
     this->analyse(this, output->root);
     gumbo_destroy_output(&kGumboDefaultOptions, output);
@@ -126,7 +126,7 @@ t_module __GumboSession =  { sizeof(t_gumbo_session),  gumbo_session_ctor, gumbo
 //                                                                            *
 // ****************************************************************************
 
-static void           __methods(GumboSession this)
+static void         __methods(GumboSession this)
 {
     this->parse = __parse;
     this->analyse = __analyse;
@@ -134,15 +134,15 @@ static void           __methods(GumboSession this)
     this->get_text = __get_text;
 }
 
-int                   gumbo_session_ctor(GumboSession this)
+int                 gumbo_session_ctor(GumboSession this, va_list *ap)
 {
-    if (super(this, __Analyser) == false)
+    if (super(this, __Analyser, va_arg(*ap, int), va_arg(*ap, Json)) == false)
         return (false);
     __methods(this);
     return (true);
 }
 
-int                   gumbo_session_dtor(GumboSession this)
+int                 gumbo_session_dtor(GumboSession this)
 {
     return (true);
 }

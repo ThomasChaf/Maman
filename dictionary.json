@@ -1,0 +1,42 @@
+{
+    "golf" : [
+        [ "ace", "NOUN", 10 ],
+        [ "chip", "VERB", 30 ],
+        [ "birdie", "NOUN", 50 ],
+        [ "bogey", "NOUN", 50 ],
+        [ "bunker", "NOUN", 90 ],
+        [ "country", "NOUN", 80 ],
+        [ "course", "NOUN", 90 ],
+        [ "club", "NOUN", 80 ],
+        [ "clubhouse", "NOUN", 60 ],
+        [ "fairway", "NOUN", 70 ],
+        [ "golf", "NOUN", 100 ],
+        [ "hole", "NOUN", 90 ],
+        [ "par", "NOUN", 60 ],
+        [ "pin", "SIMPLE", 30 ],
+        [ "pga", "SIMPLE", 30 ],
+        [ "putter", "NOUN", 30 ],
+        [ "score", "NOUN", 60 ],
+        [ "scorecard", "NOUN", 60 ],
+        [ "swing", "VERB", 50 ],
+        [ "greenfee", "NOUN", 80 ],
+        [ "tee", "NOUN", 60 ]
+    ],
+    "porno" : [
+        [ "anal", "NOUN", 90 ],
+        [ "porn", "NOUN", 100 ],
+        [ "fuck", "VERB", 80 ],
+        [ "suck", "VERB", 90 ],
+        [ "cock", "NOUN", 70 ],
+        [ "pornstar", "NOUN", 70 ],
+        [ "blowjob", "NOUN", 70 ],
+        [ "lesbian", "NOUN", 60 ]
+    ],
+    "football" : [
+        [ "zidane", "NOUN", 90 ],
+        [ "ronaldo", "NOUN", 100 ],
+        [ "ballon", "VERB", 80 ],
+        [ "foot", "VERB", 90 ],
+        [ "psg", "NOUN", 70 ]
+    ]
+}

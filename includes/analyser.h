@@ -8,6 +8,10 @@
 #ifndef __ANALYSER_H__
 #define __ANALYSER_H__
 
+#define ARRAY_CONTENT(raw, index) (((t_jnode **)(raw->content))[index]->content)
+
+#include <stdarg.h>
+
 #include "modulary.h"
 
 typedef enum    e_word_type {
@@ -34,6 +38,8 @@ typedef struct      s_analyser
 {
     t_module        module;
     unsigned int    *count;
+    Json            dictionaries;
+    fct             word_type;
     fct             analyse_sentence;
     fct             analyse_word;
     fct             analysers[WORD_TYPE_LEN];
@@ -41,7 +47,7 @@ typedef struct      s_analyser
 
 typedef t_analyser *    Analyser;
 
-int                 analyser_ctor(Analyser);
+int                 analyser_ctor(Analyser, va_list *ap);
 int                 analyser_dtor();
 
 extern char         *__ANALYSER;

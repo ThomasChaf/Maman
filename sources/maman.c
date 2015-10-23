@@ -31,12 +31,13 @@ static int              __publish_results(Maman this)
 {
     Iter                it = NULL;
     t_result            *result;
+    t_jnode             *tmp = this->dictionaries->head;
     int                 i = 0;
 
-    while (i < 2)
+    while (tmp != NULL)
     {
         printf("========================================================\n");
-        printf("                      %s                      \n", "toto");
+        printf("                      %s                      \n", tmp->content);
         printf("========================================================\n");
         this->results[i]->quicksort(this->results[i], compare_results);
         it = iter(this->results[i]);
@@ -47,6 +48,7 @@ static int              __publish_results(Maman this)
             it = next(it);
         }
         i += 1;
+        tmp = tmp->next;
     }
     printf("===================\n");
     return (true);
@@ -66,7 +68,7 @@ static int              __push_result(Maman this, int queu_index, char *descript
 
 unsigned int            *__analyse_web(Maman this, String string)
 {
-    GumboSession        gumbo = new(__GumboSession);
+    GumboSession        gumbo = new(__GumboSession, this->dico_len, this->dictionaries);
     unsigned int        *score;
 
     if (gumbo->parse(gumbo, string) == false)
@@ -81,6 +83,8 @@ int                     __analyse_web_file(Maman this, char *filename,  char *de
     String              string = NULL;
     int                 fd = m_ropen(filename);
     unsigned int        *score;
+    t_jnode             *tmp = this->dictionaries->head;
+    int                 i = 0;
 
     if (fd == -1)
         return (false);
@@ -90,11 +94,11 @@ int                     __analyse_web_file(Maman this, char *filename,  char *de
     score = this->analyse_web(this, string);
     if (score == NULL)
         return (false);
-    int i = 0;
-    while (i < 2)
+    while (tmp != NULL)
     {
         this->push_result(this, i, m_strdup(filename), descriptor, score[i]);
         i += 1;
+        tmp = tmp->next;
     }
     close(fd);
     delete(string);
@@ -183,6 +187,9 @@ static void           __methods(Maman this)
 int                 maman_ctor(Maman this, va_list *ap)
 {
     char            *filename = va_arg(*ap, char *);
+    Stream          stream;
+    t_jnode         *tmp = NULL;
+    int             i = 0;
 
     if (filename != NULL)
     {
@@ -193,15 +200,32 @@ int                 maman_ctor(Maman this, va_list *ap)
             return (false);
         }
     }
-    this->results = m_malloc(2 * sizeof(Liste *));
-    int i = 0;
-    while (i < 2)
+    stream = new(__Stream, m_ropen("dictionary.json"));
+    if (stream == NULL)
+        return (false);
+    this->dictionaries = new(__Json, stream);
+    if (this->dictionaries == NULL)
+        return (false);
+    if (this->dictionaries->json_decode(this->dictionaries) == NULL)
+        return (false);
+    this->dico_len = 0;
+    tmp = this->dictionaries->head;
+    while (tmp != NULL)
     {
-        this->results[i] = new(__Liste);
-        i += 1;
+        tmp = tmp->next;
+        this->dico_len += 1;
     }
+    this->results = m_malloc(this->dico_len * sizeof(Liste *));
     if (this->results == NULL)
         return (false);
+    i = 0;
+    while (i < this->dico_len)
+    {
+        this->results[i] = new(__Liste);
+        if (this->results[i] == NULL)
+            return (false);
+        i += 1;
+    }
     __methods(this);
     return (true);
 }

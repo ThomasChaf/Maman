@@ -1,6 +1,6 @@
 // ****************************************************************************
 //                                                                            *
-//                             CURL SESSION C                                 *
+//                                  ANALYSER C                                *
 //                                                                            *
 // Created by Thomas Chafiol  -  thomaschaf@gmail.com  -  10  /  09  /  2015  *
 // *****************************************************************************
@@ -16,48 +16,25 @@
 //                                                                            *
 // ****************************************************************************
 
-t_dictionary_word       g_dictionary_golf[]= {
-    { "ace", NOUN, 10 },
-    { "chip", VERB, 30 },
-    { "birdie", NOUN, 50 },
-    { "bogey", NOUN, 50 },
-    { "bunker", NOUN, 90 },
-    { "country", NOUN, 80 },
-    { "course", NOUN, 90 },
-    { "club", NOUN, 80 },
-    { "clubhouse", NOUN, 60 },
-    { "fairway", NOUN, 70 },
-    { "golf", NOUN, 100 },
-    { "hole", NOUN, 90 },
-    { "par", NOUN, 60 },
-    { "pin", SIMPLE, 30 },
-    { "pga", SIMPLE, 30 },
-    { "putter", NOUN, 30 },
-    { "score", NOUN, 60 },
-    { "scorecard", NOUN, 60 },
-    { "swing", VERB, 50 },
-    { "greenfee", NOUN, 80 },
-    { "tee", NOUN, 60 },
-    { NULL, 0, 0}
+char *types[]=
+{
+    "SIMPLE",
+    "NOUN",
+    "VERB",
 };
 
-t_dictionary_word       g_dictionary_porno[]= {
-    { "anal", NOUN, 90 },
-    { "porn", NOUN, 100 },
-    { "fuck", VERB, 80 },
-    { "suck", VERB, 90 },
-    { "cock", NOUN, 70 },
-    { "pornstar", NOUN, 70 },
-    { "blowjob", NOUN, 70 },
-    { "lesbian", NOUN, 60 },
-    { NULL, 0, 0}
-};
+static int          __word_type(Analyser this, char *type)
+{
+    int             i = 0;
 
-t_dictionary        g_dictionaries[]= {
-    { "golf", g_dictionary_golf },
-    { "porno", g_dictionary_porno },
-    { NULL, NULL }
-};
+    while (i < WORD_TYPE_LEN)
+    {
+        if (m_strcmp(type, types[i]) == 0)
+            return (i);
+        i += 1;
+    }
+    return (0);
+}
 
 static int          __analyse_simple(Analyser this, char *word, char *to_analyse, unsigned int len)
 {
@@ -76,24 +53,26 @@ static int          __analyse_noun(Analyser this, char *word, char *to_analyse, 
     return (-1);
 }
 
-static int          __analyse_word(Analyser this, char *word, t_dictionary_word *words)
+static int          __analyse_word(Analyser this, char *word, t_jnode **words)
 {
     int             i = 0;
     unsigned int    len = 0;
+    int             type;
+    char            *_text, *_type, *_score;
 
     word = m_strlowercase(word);
     m_epur(word, " \n\t", NULL);
     len = m_strlen(word, "");
-    while (words[i].name != NULL)
+    while (words[i] != NULL)
     {
-        if (this->analysers[words[i].type](this, words[i].name, word, len) == 0)
-        {
-	  //            printf("%d [%s]\n", words[i].score, word);
-            return (words[i].score);
-        }
+        _text = ARRAY_CONTENT(words[i], 0);
+        _type = ARRAY_CONTENT(words[i], 1);
+        _score= ARRAY_CONTENT(words[i], 2);
+        type = this->word_type(this, _type);
+        if (this->analysers[type](this, _text, word, len) == 0)
+            return (atoi(_score));
         i += 1;
     }
-    // printf("%d [%s]\n", 0, word);
     return (0);
 }
 
@@ -103,6 +82,7 @@ static int          __analyse_sentence(Analyser this, Buffer buffer, int coeff)
     Iter            it = NULL;
     int             i = 0;
     int             score;
+    t_jnode         *tmp = NULL;
 
     if (words == NULL || words->len == 0)
     {
@@ -114,10 +94,12 @@ static int          __analyse_sentence(Analyser this, Buffer buffer, int coeff)
     while (it)
     {
         i = 0;
-        while (g_dictionaries[i].name != NULL)
+        tmp = this->dictionaries->head;
+        while (tmp != NULL)
         {
-            score = this->analyse_word(this, it->content, g_dictionaries[i].words);
+            score = this->analyse_word(this, it->content, tmp->child->content);
             this->count[i] += ((coeff / words->len) * score);
+            tmp = tmp->next;
             i += 1;
         }
         it = next(it);
@@ -151,26 +133,26 @@ t_module __Analyser =  { sizeof(t_analyser),  analyser_ctor, analyser_dtor,
 //                                                                            *
 // ****************************************************************************
 
-static void           __methods(Analyser this)
+static void         __methods(Analyser this)
 {
     this->analyse_sentence = __analyse_sentence;
     this->analyse_word = __analyse_word;
+    this->word_type = __word_type;
     this->analysers[SIMPLE] = __analyse_simple;
     this->analysers[VERB] = __analyse_verb;
     this->analysers[NOUN] = __analyse_noun;
 }
 
-int                   analyser_ctor(Analyser this)
+int                 analyser_ctor(Analyser this, va_list *ap)
 {
-    int             i = 1;
+    int             i = 0;
+    int             nb_dico = va_arg(*ap, int);
 
-    while (g_dictionaries[i].name != NULL)
-        i += 1;
-    this->count = m_malloc(i * sizeof(unsigned int));
+    this->dictionaries = va_arg(*ap, Json);
+    this->count = m_malloc(nb_dico * sizeof(unsigned int));
     if (this->count == NULL)
         return (false);
-    i = 0;
-    while (g_dictionaries[i].name != NULL)
+    while (i < nb_dico)
     {
         this->count[i] = 0;
         i += 1;
