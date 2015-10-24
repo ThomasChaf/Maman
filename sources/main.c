@@ -4,12 +4,12 @@
 #include "modulary.h"
 #include "maman.h"
 
-int                 maman_from_list(char *list)
+int             maman_from_list(char *list)
 {
-    char            filename[128];
-    int             i = 0;
-    Maman           maman = new(__Maman, list);
-    Iter            it;
+    char        filename[128];
+    int         i = 0;
+    Maman       maman = new(__Maman, list);
+    Iter        it;
 
     if (maman == NULL)
         return (false);
@@ -28,9 +28,9 @@ int                 maman_from_list(char *list)
     return (true);
 }
 
-int                 simple_maman(char *filename, char *descriptor)
+int             simple_maman(char *filename, char *descriptor)
 {
-    Maman           maman = new(__Maman, NULL);
+    Maman       maman = new(__Maman, NULL);
 
     if (maman == NULL)
         return (false);
@@ -44,9 +44,8 @@ int                 simple_maman(char *filename, char *descriptor)
     return (true);
 }
 
-int                 main(int argc, char **argv)
+int             main(int argc, char **argv)
 {
-
     if (argc == 2)
     {
         if (maman_from_list(argv[1]) == false)

@@ -7,7 +7,6 @@
 
 #include <stdio.h>
 #include <unistd.h>
-
 #include <stdlib.h>
 
 #include "modulary.h"
@@ -20,24 +19,24 @@
 //                                                                            *
 // ****************************************************************************
 
-int                     compare_results(t_result *a, t_result *b)
+int                 compare_results(t_result *a, t_result *b)
 {
     if (a->score < b->score)
         return (true);
     return (false);
 }
 
-static int              __publish_results(Maman this)
+static int          __publish_results(Maman this)
 {
-    Iter                it = NULL;
-    t_result            *result;
-    t_jnode             *tmp = this->dictionaries->head;
-    int                 i = 0;
+    Iter            it = NULL;
+    t_result        *result;
+    t_jnode         *tmp = this->dictionaries->head;
+    int             i = 0;
 
     while (tmp != NULL)
     {
         printf("========================================================\n");
-        printf("                      %s                      \n", tmp->content);
+        printf("%25s\n", tmp->content);
         printf("========================================================\n");
         this->results[i]->quicksort(this->results[i], compare_results);
         it = iter(this->results[i]);
@@ -54,9 +53,9 @@ static int              __publish_results(Maman this)
     return (true);
 }
 
-static int              __push_result(Maman this, int queu_index, char *descriptor, char *sub_descriptor, int score)
+static int          __push_result(Maman this, int queu_index, char *descriptor, char *sub_descriptor, int score)
 {
-    t_result            *result = m_malloc(sizeof(t_result));
+    t_result        *result = m_malloc(sizeof(t_result));
 
     if (result == NULL)
         return (false);
@@ -66,10 +65,10 @@ static int              __push_result(Maman this, int queu_index, char *descript
     return (push(this->results[queu_index], result));
 }
 
-unsigned int            *__analyse_web(Maman this, String string)
+unsigned int        *__analyse_web(Maman this, String string)
 {
-    GumboSession        gumbo = new(__GumboSession, this->dico_len, this->dictionaries);
-    unsigned int        *score;
+    GumboSession    gumbo = new(__GumboSession, this->dico_len, this->dictionaries);
+    unsigned int    *score;
 
     if (gumbo->parse(gumbo, string) == false)
         return (NULL);
@@ -78,13 +77,13 @@ unsigned int            *__analyse_web(Maman this, String string)
     return (score);
 }
 
-int                     __analyse_web_file(Maman this, char *filename,  char *descriptor)
+int                 __analyse_web_file(Maman this, char *filename,  char *descriptor)
 {
-    String              string = NULL;
-    int                 fd = m_ropen(filename);
-    unsigned int        *score;
-    t_jnode             *tmp = this->dictionaries->head;
-    int                 i = 0;
+    String          string = NULL;
+    int             fd = m_ropen(filename);
+    unsigned int    *score;
+    t_jnode         *tmp = this->dictionaries->head;
+    int             i = 0;
 
     if (fd == -1)
         return (false);
@@ -105,7 +104,7 @@ int                     __analyse_web_file(Maman this, char *filename,  char *de
     return (true);
 }
 
-int                     __analyse(Maman this, t_type_maman type, char *filename, char *descriptor)
+int                 __analyse(Maman this, t_type_maman type, char *filename, char *descriptor)
 {
     return (this->actions[type](this, filename, descriptor));
 }
@@ -175,7 +174,7 @@ t_module __Maman =  { sizeof(t_maman),  maman_ctor, maman_dtor,
 //                                                                            *
 // ****************************************************************************
 
-static void           __methods(Maman this)
+static void         __methods(Maman this)
 {
     this->publish_results = __publish_results;
     this->push_result = __push_result;
@@ -200,7 +199,7 @@ int                 maman_ctor(Maman this, va_list *ap)
             return (false);
         }
     }
-    stream = new(__Stream, m_ropen("dictionary.json"));
+    stream = new(__Stream, m_ropen(DICTIONARY_PATH));
     if (stream == NULL)
         return (false);
     this->dictionaries = new(__Json, stream);
@@ -226,16 +225,21 @@ int                 maman_ctor(Maman this, va_list *ap)
             return (false);
         i += 1;
     }
+    delete(stream);
     __methods(this);
     return (true);
 }
 
-int                   maman_dtor(Maman this)
+int                 maman_dtor(Maman this)
 {
-    int         i = 0;
+    int             i = 0;
 
-    // while (i < 2)
-    //     delete(this->results[i]);
+    while (i < this->dico_len)
+    {
+        delete(this->results[i]);
+        i += 1;
+    }
     free(this->results);
+    delete(this->dictionaries);
     return (true);
 }

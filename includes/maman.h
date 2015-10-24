@@ -13,6 +13,8 @@
 
 #include "modulary.h"
 
+#define DICTIONARY_PATH "dictionary.json"
+
 typedef enum        e_type_maman
 {
     MAMAN_WEB_FILE,
@@ -31,7 +33,7 @@ typedef struct      s_maman
 {
     t_module        parent;
     Json            dictionaries;
-    int             dico_len; 
+    int             dico_len;
     FILE            *fp;
     Liste           *results;
     fct             publish_results;
