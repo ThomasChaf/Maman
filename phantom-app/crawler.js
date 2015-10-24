@@ -45,8 +45,7 @@ function crawlWebsites()
     console.log('Craw website [' + filename + ']: ' + url);
     if (fs.isFile(filename))
     {
-        console.log('file already exist');
-        console.log(filename);
+        console.log('file ' + filename + ' already exist');
         crawlWebsites();
         return ;
     }
@@ -58,7 +57,6 @@ function crawlWebsites()
                 fs.write(filename, page.content, 'w');
             }
             else {
-                console.log('Putin derreur ' + status + '|' + httpStatus + ' sur: ' + url);
                 if (httpStatus === null)
                     fs.write(filename, 'Error: Website is no more online', 'w');
                 if (httpStatus === 200)
