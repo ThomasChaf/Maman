@@ -49,7 +49,7 @@ static int          __publish_results(Maman this)
         i += 1;
         tmp = tmp->next;
     }
-    printf("===================\n");
+    printf("========================================================\n");
     return (true);
 }
 
