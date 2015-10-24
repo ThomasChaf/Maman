@@ -1,15 +1,14 @@
 # Maman
 A web crawler that determine the category of some website.
 
-Each content is analysed and a score is calculated for each website and for each category. The category are defined in the dictionary.json file.
-Then the list of the website is sorted and displayed.
+Each content is analysed and a score is calculated for each website and for each category. Categories are defined in the dictionary.json file.
+Then the list of the website is sorted by score and category and displayed.
 
 ## Requirements ##
 
 #### Modulary ####
 
 * A C library.
-* Put the library in the libraries directory
 
 https://github.com/ThomasChaf/Modulary
 
@@ -25,7 +24,7 @@ https://github.com/google/gumbo-parser
 
 ## Usage ##
 
-* ### Configuration ###
+### Configuration ###
 
 #### dictionary.json ####
 
@@ -53,7 +52,7 @@ Each word has a type.
 
 The type is used to improve the analyse. A verb is conjugate. A noun is matched with his plural form.
 
-* ### Crawling ###
+### Crawling ###
 
 The phantom-app is a sub app used to crawl all the website. It used a file containing a list of website as first argument.
 
@@ -61,19 +60,19 @@ The phantom-app is a sub app used to crawl all the website. It used a file conta
 
 Then the html of the website is saved in a sub folder. This is this html that will be parsed by the maman application.
 
-* ### Launch ###
+### Launch ###
 
-    -> With the list of websites:
+-> With the list of websites:
 
-        ./maman phantom-app/websites.txt
+    ./maman phantom-app/websites.txt
 
-    (OR)
+(OR)
 
-    -> With a single website *(to make a test)*
+-> With a single website *(to make a test)*
 
-        ./maman test.html "Description"
+    ./maman test.html "Description"
 
-* ### Results ###
+### Results ###
 
 ```
 ========================================================
